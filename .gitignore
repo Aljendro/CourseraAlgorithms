@@ -1,0 +1,17 @@
+# Ignore utilities to check programs
+checkstyle-5.5/*
+findbugs-2.0.3/*
+
+# Extra files provided by Algorithms 4th Edition Website
+log.txt
+stdlib.jar
+algs4.jar
+
+# Ignore test files for Percolation
+Percolation/percolation/*
+
+# Ignore PercolationVisualizer
+Percolation/PercolationVisualizer*
+
+# Ignore JVM generated files
+*.class
