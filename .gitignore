@@ -12,6 +12,7 @@ Percolation/percolation/*
 
 # Ignore PercolationVisualizer
 Percolation/PercolationVisualizer*
+Percolation/InteractivePercolationVisualizer*
 
 # Ignore JVM generated files
 *.class
