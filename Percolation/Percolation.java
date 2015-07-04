@@ -51,38 +51,55 @@ public class Percolation {
 
     // Connect the surround open elements to this site
 
-    // Any open site in the top row will be connected to
-    // the virtual top site
+    // Check the top row
     if ( row == 0 ) {
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_TOP );
-      bottomUnion( row, col );
-    }
-    // Any open site in the bottom row will be connected to the
-    // virtual bottom site
-    else if ( row == GRID_SIZE - 1 ) {
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_BOTTOM );
-      topUnion( row, col );
-    }
-    // Union the left column
-    else if ( col == 0 ) {
-      rightUnion( row, col );
-      topUnion( row, col );
-      bottomUnion( row, col );
-    }
-    // Union the right column
-    else if ( col == GRID_SIZE - 1 ) {
-      leftUnion( row, col );
-      topUnion( row, col );
-      bottomUnion( row, col );
-    }
-    // Union everything else
-    else {
-      leftUnion( row, col );
-      rightUnion( row, col );
-      topUnion( row, col );
-      bottomUnion( row, col );
-    }
 
+      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_TOP );
+      if ( GRID_SIZE == 1 ) {
+        // Check the corner case of a size one grid
+        unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_BOTTOM );
+      } else {
+        bottomUnion( row, col );
+      }
+    }
+    // Check the left column
+    else if ( col == 0 ) {
+      topUnion( row, col );
+      rightUnion( row, col );
+
+      if ( row != GRID_SIZE - 1 ) {
+        bottomUnion( row, col );
+      }
+
+    }
+    // Check the right column
+    else if ( col == GRID_SIZE - 1 ) {
+      topUnion( row, col );
+      leftUnion( row, col );
+
+      if ( row != GRID_SIZE - 1 ) {
+        bottomUnion( row, col );
+      }
+    }
+    // Check the bottom row
+    else if ( row == GRID_SIZE - 1 ) {
+      topUnion( row, col );
+      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_BOTTOM );
+
+      if ( col != 0 ) {
+        leftUnion( row, col );
+      }
+      if ( col != GRID_SIZE - 1 ) {
+        rightUnion( row, col );
+      }
+    }
+    // The rest of the sites
+    else {
+      topUnion( row, col );
+      leftUnion( row, col );
+      rightUnion( row, col );
+      bottomUnion( row, col );
+    }
   }
 
   private int convert2DimTo1DimArrayIndices( int row, int col ) {
@@ -152,6 +169,10 @@ public class Percolation {
     // Check the top of the site
     if ( isOpen( ( row + 1 ) - 1, col + 1 ) ) {
       unionFind.union( convert2DimTo1DimArrayIndices( row, col ), convert2DimTo1DimArrayIndices( row - 1, col ) );
+
+      if ( isFull( ( row + 1 ) - 1, col + 1 ) && row - 1 == GRID_SIZE - 1 )
+
+
     }
   }
 
