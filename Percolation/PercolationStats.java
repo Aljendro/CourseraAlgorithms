@@ -34,8 +34,8 @@ public class PercolationStats {
     GRID_SIZE = N;
     TEST_SIZE = T;
 
-    for( int i = 0; i < N; i++) {
-      for( int j = 0; j < N; j++) {
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
         sites[i * N + j] = new Site(i + 1, j + 1);
       }
     }
@@ -56,7 +56,7 @@ public class PercolationStats {
       site = 0;
       openSiteCount = 0;
 
-      while ( !perc.percolates() && site < TOTAL_GRIDS) {
+      while (!perc.percolates() && site < TOTAL_GRIDS) {
 
         perc.open(sites[site].getX(), sites[site].getY());
         site += 1;
@@ -76,24 +76,27 @@ public class PercolationStats {
   }
 
   public double confidenceLo() {
-    return ( StdStats.mean(openSites) - ((1.96 * StdStats.stddev(openSites)) / Math.sqrt((double) TEST_SIZE)));
+    return (StdStats.mean(openSites)
+      - ((1.96 * StdStats.stddev(openSites)) / Math.sqrt((double) TEST_SIZE)));
   }
 
   public double confidenceHi() {
 
-    return ( StdStats.mean(openSites) + ((1.96 * StdStats.stddev(openSites)) / Math.sqrt((double) TEST_SIZE)));
+    return (StdStats.mean(openSites)
+      + ((1.96 * StdStats.stddev(openSites)) / Math.sqrt((double) TEST_SIZE)));
   }
 
   public static void main(String[] args) {
 
-    PercolationStats stats = new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+    PercolationStats stats = new PercolationStats(Integer.parseInt(args[0]),
+                                                  Integer.parseInt(args[1]));
 
     stats.runStats();
 
     System.out.println("mean                    = " + stats.mean());
     System.out.println("stddev                  = " + stats.stddev());
-    System.out.println("95% confidence interval = " +
-                      stats.confidenceLo() + ", " + stats.confidenceHi());
+    System.out.println("95% confidence interval = "
+                        + stats.confidenceLo() + ", " + stats.confidenceHi());
   }
 
 }
