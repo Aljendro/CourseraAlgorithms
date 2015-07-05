@@ -1,22 +1,24 @@
 public class Percolation {
 
   private boolean[][] grid;
-  private UF unionFind;
+  private WeightedQuickUnionUF unionFind;
+  private WeightedQuickUnionUF unionFindSECOND;
   private int GRID_SIZE;
   private int UF_BOTTOM;
   private int UF_TOP;
 
   public Percolation(int N) {
 
-    if (N < 0) throw new IllegalArgumentException();
+    if (N <= 0) throw new IllegalArgumentException();
 
     // Intialize a Union Find with 2 extra spots
     // for a virtual top and virtual bottom
     // Nth element of unionFind will be the bottom
     // Nth + 1 element of unionFind will be the top
-    unionFind = new UF(N * N + 2);
-    UF_BOTTOM = N * N;
-    UF_TOP = (N * N) + 1;
+    unionFind = new WeightedQuickUnionUF(N * N + 1);
+    unionFindSECOND = new WeightedQuickUnionUF(N * N + 2);
+    UF_BOTTOM = N * N + 1;
+    UF_TOP = N * N;
 
     // Initialize a grid where false
     // shows the site is blocked and true
@@ -34,7 +36,7 @@ public class Percolation {
   }
 
   // open site (row i, column j) if it is not open already
-  public void open(int i, int j)  {
+  public void open(int i, int j) {
 
     checkBounds(i, j);
 
@@ -51,9 +53,10 @@ public class Percolation {
     // Any open site in the top row will be connected to
     // the virtual top site
     if (i == 1) {
+      unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j), UF_TOP);
       unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_TOP);
       if (GRID_SIZE == 1) {
-        unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
+        unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
       } else {
         bottomUnion(i, j);
       }
@@ -61,7 +64,7 @@ public class Percolation {
     // Any open site in the bottom row will not be connected to virtual
     // bottom until it
     else if (i == GRID_SIZE) {
-      unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
+      unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
       if (j != 1) leftUnion(i, j);
       if (j != GRID_SIZE) rightUnion(i, j);
       topUnion(i, j);
@@ -107,18 +110,11 @@ public class Percolation {
     return unionFind.connected(convert2DimTo1DimArrayIndices(i, j), UF_TOP);
   }
 
-  private boolean isEmpty(int i, int j) {
-
-    checkBounds(i, j);
-
-    return unionFind.connected(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
-  }
-
   // does the system percolate?
   public boolean percolates()  {
 
     // Are the virtual TOP and BOTTOM sites connected?
-    return unionFind.connected(UF_TOP, UF_BOTTOM);
+    return unionFindSECOND.connected(UF_TOP, UF_BOTTOM);
   }
 
   private void checkBounds(int i, int j) {
@@ -140,6 +136,8 @@ public class Percolation {
     if (isOpen(i , j + 1)) {
       unionFind.union(convert2DimTo1DimArrayIndices(i, j),
                       convert2DimTo1DimArrayIndices(i, j + 1));
+      unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j),
+                            convert2DimTo1DimArrayIndices(i, j + 1));
     }
   }
 
@@ -149,6 +147,8 @@ public class Percolation {
     if (isOpen(i, j - 1)) {
       unionFind.union(convert2DimTo1DimArrayIndices(i, j),
                       convert2DimTo1DimArrayIndices(i, j - 1));
+      unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j),
+                            convert2DimTo1DimArrayIndices(i, j - 1));
     }
   }
 
@@ -158,6 +158,8 @@ public class Percolation {
     if (isOpen(i - 1, j)) {
       unionFind.union(convert2DimTo1DimArrayIndices(i, j),
                       convert2DimTo1DimArrayIndices(i - 1, j));
+      unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j),
+                            convert2DimTo1DimArrayIndices(i - 1, j));
 
       // if (isFull(i - 1 , j) && i == GRID_SIZE) {
       //   unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
@@ -171,6 +173,8 @@ public class Percolation {
     if (isOpen(i + 1, j)) {
       unionFind.union(convert2DimTo1DimArrayIndices(i, j),
                       convert2DimTo1DimArrayIndices(i + 1, j));
+      unionFindSECOND.union(convert2DimTo1DimArrayIndices(i, j),
+                            convert2DimTo1DimArrayIndices(i + 1, j));
 
       // if (isFull(i, j) && i + 1 == GRID_SIZE) {
       //   unionFind.union(convert2DimTo1DimArrayIndices(i + 1, j), UF_BOTTOM);
