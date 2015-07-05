@@ -6,140 +6,126 @@ public class Percolation {
   private int UF_BOTTOM;
   private int UF_TOP;
 
-  public Percolation( int N ) {
+  public Percolation(int N) {
 
-    if ( N < 0 ) throw new IllegalArgumentException();
+    if (N < 0) throw new IllegalArgumentException();
 
     // Intialize a Union Find with 2 extra spots
     // for a virtual top and virtual bottom
     // Nth element of unionFind will be the bottom
     // Nth + 1 element of unionFind will be the top
-    unionFind = new UF( N * N + 2 );
+    unionFind = new UF(N * N + 2);
     UF_BOTTOM = N * N;
-    UF_TOP = ( N * N ) + 1;
+    UF_TOP = (N * N) + 1;
 
     // Initialize a grid where false
     // shows the site is blocked and true
     // shows the sight is open.
-    grid = new boolean[N][N];
+    grid = new boolean[N + 1][N + 1];
     GRID_SIZE = N;
 
     // Initialize grid array.
     // false signifies that the item is blocked
-    for ( int i = 0; i < N; i++ ) {
-      for ( int j = 0; j < N; j++ ) {
+    for (int i = 1; i <= N; i++) {
+      for (int j = 1; j <= N; j++) {
         grid[i][j] = false;
       }
     }
   }
 
   // open site (row i, column j) if it is not open already
-  public void open( int i, int j )  {
+  public void open(int i, int j)  {
 
-    int row = i - 1;
-    int col = j - 1;
-
-    checkBounds( row, col );
+    checkBounds(i, j);
 
     // Check if its already open
-    if ( isOpen( i, j ) ) {
+    if (isOpen(i, j)) {
       return;
     }
 
     // Change the value to true to open the blocked site
-    grid[row][col] = true;
+    grid[i][j] = true;
 
     // Connect the surround open elements to this site
 
-    // Check the top row
-    if ( row == 0 ) {
-
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_TOP );
-      if ( GRID_SIZE == 1 ) {
-        // Check the corner case of a size one grid
-        unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_BOTTOM );
+    // Any open site in the top row will be connected to
+    // the virtual top site
+    if (i == 1) {
+      unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_TOP);
+      if (GRID_SIZE == 1) {
+        unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
       } else {
-        bottomUnion( row, col );
+        bottomUnion(i, j);
       }
     }
-    // Check the left column
-    else if ( col == 0 ) {
-      topUnion( row, col );
-      rightUnion( row, col );
-
-      if ( row != GRID_SIZE - 1 ) {
-        bottomUnion( row, col );
-      }
-
+    // Any open site in the bottom row will not be connected to virtual
+    // bottom until it
+    else if (i == GRID_SIZE) {
+      unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
+      if (j != 1) leftUnion(i, j);
+      if (j != GRID_SIZE) rightUnion(i, j);
+      topUnion(i, j);
     }
-    // Check the right column
-    else if ( col == GRID_SIZE - 1 ) {
-      topUnion( row, col );
-      leftUnion( row, col );
-
-      if ( row != GRID_SIZE - 1 ) {
-        bottomUnion( row, col );
-      }
+    // Union the left column
+    else if (j == 1) {
+      rightUnion(i, j);
+      topUnion(i, j);
+      bottomUnion(i, j);
     }
-    // Check the bottom row
-    else if ( row == GRID_SIZE - 1 ) {
-      topUnion( row, col );
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), UF_BOTTOM );
-
-      if ( col != 0 ) {
-        leftUnion( row, col );
-      }
-      if ( col != GRID_SIZE - 1 ) {
-        rightUnion( row, col );
-      }
+    // Union the right column
+    else if (j == GRID_SIZE) {
+      leftUnion(i, j);
+      topUnion(i, j);
+      bottomUnion(i, j);
     }
     // The rest of the sites
     else {
-      topUnion( row, col );
-      leftUnion( row, col );
-      rightUnion( row, col );
-      bottomUnion( row, col );
+      leftUnion(i, j);
+      rightUnion(i, j);
+      topUnion(i, j);
+      bottomUnion(i, j);
     }
   }
 
-  private int convert2DimTo1DimArrayIndices( int row, int col ) {
-    return row * GRID_SIZE + col;
+  private int convert2DimTo1DimArrayIndices(int i, int j) {
+    return (i * GRID_SIZE + j) - GRID_SIZE - 1;
   }
 
   // is site (row i, column j) open?
-  public boolean isOpen( int i, int j ) {
+  public boolean isOpen(int i, int j) {
 
-    int row = i - 1;
-    int col = j - 1;
+    checkBounds(i, j);
 
-    checkBounds( row, col );
-
-    return grid[row][col];
+    return grid[i][j];
   }
 
   // is site (row i, column j) full?
-  public boolean isFull( int i, int j )  {
+  public boolean isFull(int i, int j)  {
 
-    int row = i - 1;
-    int col = j - 1;
+    checkBounds(i, j);
 
-    checkBounds( row, col );
+    return unionFind.connected(convert2DimTo1DimArrayIndices(i, j), UF_TOP);
+  }
 
-    return unionFind.connected( convert2DimTo1DimArrayIndices( row, col ), UF_TOP);
+  private boolean isEmpty(int i, int j) {
+
+    checkBounds(i, j);
+
+    return unionFind.connected(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
   }
 
   // does the system percolate?
   public boolean percolates()  {
 
     // Are the virtual TOP and BOTTOM sites connected?
-    return unionFind.connected( UF_TOP, UF_BOTTOM );
+    return unionFind.connected(UF_TOP, UF_BOTTOM);
   }
 
-  private void checkBounds( int row, int col ) {
+  private void checkBounds(int i, int j) {
 
-    if ( row < 0 || row >= GRID_SIZE  ) {
+    if (i < 1 || i > GRID_SIZE) {
       throw new IndexOutOfBoundsException();
-    } else if ( col < 0 || col >= GRID_SIZE ) {
+    } else if (j < 1 || j > GRID_SIZE) {
       throw new IndexOutOfBoundsException();
     }
   }
@@ -148,42 +134,49 @@ public class Percolation {
   // requires that its arguments be:
   // i: 1 to N
   // j: 1 to N
-  private void rightUnion( int row , int col ) {
+  private void rightUnion(int i , int j) {
 
     // Check the right side
-    if ( isOpen( row + 1, ( col + 1 ) + 1 ) ) {
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), convert2DimTo1DimArrayIndices( row, col + 1 ) );
+    if (isOpen(i , j + 1)) {
+      unionFind.union(convert2DimTo1DimArrayIndices(i, j),
+                      convert2DimTo1DimArrayIndices(i, j + 1));
     }
   }
 
-  private void leftUnion( int row, int col ) {
+  private void leftUnion(int i, int j) {
 
     // Check the left side
-    if ( isOpen( row + 1 , ( col + 1 ) - 1 ) ) {
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), convert2DimTo1DimArrayIndices( row, col - 1 ) );
+    if (isOpen(i, j - 1)) {
+      unionFind.union(convert2DimTo1DimArrayIndices(i, j),
+                      convert2DimTo1DimArrayIndices(i, j - 1));
     }
   }
 
-  private void topUnion( int row, int col ) {
+  private void topUnion(int i, int j) {
 
     // Check the top of the site
-    if ( isOpen( ( row + 1 ) - 1, col + 1 ) ) {
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), convert2DimTo1DimArrayIndices( row - 1, col ) );
+    if (isOpen(i - 1, j)) {
+      unionFind.union(convert2DimTo1DimArrayIndices(i, j),
+                      convert2DimTo1DimArrayIndices(i - 1, j));
 
-      if ( isFull( ( row + 1 ) - 1, col + 1 ) && row - 1 == GRID_SIZE - 1 )
-
-
+      // if (isFull(i - 1 , j) && i == GRID_SIZE) {
+      //   unionFind.union(convert2DimTo1DimArrayIndices(i, j), UF_BOTTOM);
+      // }
     }
   }
 
-  private void bottomUnion( int row, int col ) {
+  private void bottomUnion(int i, int j) {
 
     // check the bottom of the site
-    if ( isOpen( ( row + 1) + 1, col + 1 ) ) {
-      unionFind.union( convert2DimTo1DimArrayIndices( row, col ), convert2DimTo1DimArrayIndices( row + 1, col ) );
+    if (isOpen(i + 1, j)) {
+      unionFind.union(convert2DimTo1DimArrayIndices(i, j),
+                      convert2DimTo1DimArrayIndices(i + 1, j));
+
+      // if (isFull(i, j) && i + 1 == GRID_SIZE) {
+      //   unionFind.union(convert2DimTo1DimArrayIndices(i + 1, j), UF_BOTTOM);
+      // }
     }
   }
-
 
   public static void main(String[] args) {
       System.out.println("Hello, World!");
