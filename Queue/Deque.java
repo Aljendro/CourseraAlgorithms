@@ -94,14 +94,14 @@ public class Deque<Item> implements Iterable<Item> {
 
   // return an iterator over items in order from front to end
   public Iterator<Item> iterator() {
-    return new dequeIterator();
+    return new DequeIterator();
   }
 
-  private class dequeIterator implements Iterator<Item> {
+  private class DequeIterator implements Iterator<Item> {
 
     private Node current;
 
-    public dequeIterator() {
+    public DequeIterator() {
       current = new Node();
       current.prev = null;
       current.next = head;
@@ -132,32 +132,32 @@ public class Deque<Item> implements Iterable<Item> {
     Deque<Integer> d = new Deque<Integer>();
 
     print("Initialization was correct");
-    assert(d.isEmpty() == true);
-    assert(d.size() == 0);
+    assert (d.isEmpty());
+    assert (d.size() == 0);
     print("Passed");
 
     print("Check if it is actually empty");
-    for( int it : d ) {
-      assert(false);
+    for (int it : d) {
+      assert (false);
     }
     print("Passed");
 
     print("Check if the first item added to the front was added successfully");
     d.addFirst(1);
-    assert(d.isEmpty() == false);
-    assert(d.size() == 1);
+    assert (!d.isEmpty());
+    assert (d.size() == 1);
     print("Passed");
 
     print("Check if a second item added to the back was added succesfully");
     d.addLast(2);
-    assert(d.isEmpty() == false);
-    assert(d.size() == 2);
+    assert (!d.isEmpty());
+    assert (d.size() == 2);
     print("Passed");
 
     print("Check if a third item added to the front was added successfully");
     d.addFirst(0);
-    assert(d.isEmpty() == false);
-    assert(d.size() == 3);
+    assert (!d.isEmpty());
+    assert (d.size() == 3);
     print("Passed");
 
 
@@ -165,49 +165,95 @@ public class Deque<Item> implements Iterable<Item> {
 
     print("Check if removeFirst actually removes the first item");
     num = d.removeFirst();
-    assert(d.isEmpty() == false);
-    assert(d.size() == 2);
-    assert(num == 0);
+    assert (!d.isEmpty());
+    assert (d.size() == 2);
+    assert (num == 0);
     print("Passed");
 
     print("Check if removeLast actually removes the second item");
     num = d.removeLast();
-    assert(d.isEmpty() == false);
-    assert(d.size() == 1);
-    assert(num == 2);
+    assert (!d.isEmpty());
+    assert (d.size() == 1);
+    assert (num == 2);
     print("Passed");
 
     print("Check if removing the last item from the front is successful");
     num = d.removeFirst();
-    assert(d.isEmpty() == true);
-    assert(d.size() == 0);
-    assert(num == 1);
+    assert (d.isEmpty());
+    assert (d.size() == 0);
+    assert (num == 1);
     print("Passed");
 
     print("Check if it is actually empty");
-    for( int it : d ) {
-      assert(false);
+    for (int it : d) {
+      assert (false);
     }
     print("Passed");
 
     print("Add 10 items and check the size");
     for (int i = 0; i < 10; i++) {
-      assert(d.size() == i);
+      assert (d.size() == i);
       print("\tValue inputted: " + i);
       d.addLast(i);
     }
     print("Passed");
 
-    assert(d.size() == 10);
+    assert (d.size() == 10);
 
     print("Check if the iterator iterates from the front");
     int i = 0;
-    for (int currentItem : d ) {
+    for (int currentItem : d) {
       print("\tIteration: " + i);
       print("\tValue: " + currentItem);
-      assert(currentItem == i);
+      assert (currentItem == i);
       i++;
     }
+    print("Passed");
+
+    print("Check if removing all items passes");
+    for (int j = 0; j < 10; j++) {
+      assert(d.size() == 10 - j);
+      d.removeFirst();
+    }
+    print("Passed");
+
+    print("Check if intermixed method calls pass");
+    d.addFirst(10);
+    assert (d.size() == 1);
+    d.removeLast();
+    assert (d.size() == 0);
+    d.addLast(20);
+    assert (d.size() == 1);
+    d.addFirst(30);
+    assert (d.size() == 2);
+    d.addLast(40);
+    assert (d.size() == 3);
+    d.removeLast();
+    assert (d.size() == 2);
+    d.removeFirst();
+    assert (d.size() == 1);
+
+    int size = 1;
+    for (int j = 100; j < 150; j++) {
+      if (j % 2 == 0) {
+        d.addFirst(j);
+        assert (d.size() == size++);
+      } else {
+        d.addLast(j);
+        assert (d.size() == size++);
+      }
+    }
+
+    for (int j = 0; j < 50; j++) {
+      if (j % 2 != 0) {
+        d.removeFirst();
+        assert (d.size() == size--);
+      } else {
+        d.removeLast();
+        assert (d.size() == size--);
+      }
+    }
+    assert(d.size() == 1);
     print("Passed");
 
 

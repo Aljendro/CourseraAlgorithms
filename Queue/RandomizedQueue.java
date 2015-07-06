@@ -9,7 +9,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   // construct an empty randomized queue
   public RandomizedQueue() {
 
-    head = null;
+    head = new Node();
+    head.prev = null;
+    head.next = null;
     size = 0;
   }
 
@@ -34,11 +36,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   public void enqueue(Item item) {
     if (item == null) throw new NullPointerException();
 
-    Node oldNode = head;
-    head = new Node();
-    head.item = item;
-    head.next = oldNode;
-    if (oldNode != null) oldNode.prev = head;
+    Node oldNode = head.next;
+    head.next = new Node();
+    head.next.item = item;
+    head.next.prev = head;
+    head.next.next = oldNode;
+    if (oldNode != null) oldNode.prev = head.next;
+    oldNode = null;
     size++;
   }
 
@@ -48,9 +52,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     if (isEmpty()) throw new NoSuchElementException();
 
     int rand = StdRandom.uniform(1, size + 1);
-    Node current = head;
+    Node current = head.next;
 
-    for(int i = 1; i < rand; i++) {
+    for (int i = 1; i < rand; i++) {
       current = current.next;
     }
 
@@ -58,7 +62,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     if (current.prev != null) current.prev.next = current.next;
     if (current.next != null) current.next.prev = current.prev;
-    if (size() == 1) head = null;
+    current.next = null;
+    current.prev = null;
     current = null;
     size--;
 
@@ -71,9 +76,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     if (isEmpty()) throw new NoSuchElementException();
 
     int rand = StdRandom.uniform(1, size + 1);
-    Node current = head;
+    Node current = head.next;
 
-    for(int i = 1; i < rand; i++) {
+    for (int i = 1; i < rand; i++) {
       current = current.next;
     }
 
@@ -82,16 +87,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
   // return an independent iterator over items in random order
   public Iterator<Item> iterator() {
-    return new randomizedQueueIterator();
+    return new RandomizedQueueIterator();
   }
 
-  private class randomizedQueueIterator implements Iterator<Item> {
+  private class RandomizedQueueIterator implements Iterator<Item> {
 
     private Node current;
 
-    public randomizedQueueIterator() {
-      current = new Node();
-      current.next = head;
+    public RandomizedQueueIterator() {
+      current = head;
     }
     public boolean hasNext() {
       return current.next != null;
@@ -119,72 +123,72 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     RandomizedQueue<Integer> r = new RandomizedQueue<Integer>();
 
     print("Check initialization");
-    assert(r.isEmpty() == true);
-    assert(r.size() == 0);
+    assert (r.isEmpty());
+    assert (r.size() == 0);
     print("Passed");
 
     print("Check if it is actually empty");
-    for( int it : r ) {
-      assert(false);
+    for (int it : r) {
+      assert (false);
     }
     print("Passed");
 
     print("Check if adding item is successful");
     r.enqueue(0);
-    assert(r.isEmpty() == false);
-    assert(r.size() == 1);
+    assert (r.isEmpty());
+    assert (r.size() == 1);
     print("Passed");
 
     int item = -1;
 
     print("Check if sample() gives us that item back");
     item = r.sample();
-    assert(item == 0);
+    assert (item == 0);
     print("Passed");
 
     print("Check if dequeue() gives the item and decrements properly");
     item = r.dequeue();
-    assert(r.isEmpty() == true);
-    assert(r.size() == 0);
-    assert(item == 0);
+    assert (r.isEmpty());
+    assert (r.size() == 0);
+    assert (item == 0);
     print("Passed");
 
     print("Check if it is actually empty");
-    for( int it : r ) {
-      assert(false);
+    for (int it : r) {
+      assert (false);
     }
     print("Passed");
 
     print("Check if adding another item is successful");
     r.enqueue(0);
-    assert(r.isEmpty() == false);
-    assert(r.size() == 1);
+    assert (r.isEmpty());
+    assert (r.size() == 1);
     print("Passed");
 
     print("Check if adding a second item is successful");
     r.enqueue(1);
-    assert(r.isEmpty() == false);
-    assert(r.size() == 2);
+    assert (r.isEmpty());
+    assert (r.size() == 2);
     print("Passed");
 
     print("Check if either item is returned");
     item = r.sample();
-    assert(item == 0 || item == 1);
+    assert (item == 0 || item == 1);
     print("Passed");
 
     r.dequeue();
     r.dequeue();
 
     print("Check if it is actually empty");
-    for( int it : r ) {
-      assert(false);
+    for (int it : r) {
+      assert (false);
     }
     print("Passed");
 
-    assert(r.isEmpty() == true);
+    assert (r.isEmpty());
 
     for (int i = 0; i < 10; i++) {
-      assert(r.size() == i);
+      assert (r.size() == i);
       r.enqueue(i);
     }
 
@@ -194,14 +198,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
 
     print("Delete all items from the RandomizedQueue");
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
       r.dequeue();
     }
     print("Successful");
 
     print("Check if it is actually empty");
-    for( int it : r ) {
-      assert(false);
+    for (int it : r) {
+      assert (false);
     }
     print("Passed");
 
