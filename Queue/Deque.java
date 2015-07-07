@@ -10,13 +10,25 @@ public class Deque<Item> implements Iterable<Item> {
   // construct an empty deque
   public Deque() {
 
-    head = null;
-    tail = null;
+    // Initialize head and tail dummy nodes
+    // They will not contain data.
+    head = new Node();
+    tail = new Node();
+
+    head.next = tail;
+    head.prev = null;
+
+    tail.next = null;
+    tail.prev = head;
+
     size = 0;
   }
 
   private class Node {
 
+    // We need a Node to contain the data
+    // as well as references to the front and
+    // back using the next and prev variables
     private Item item;
     private Node next;
     private Node prev;
@@ -37,16 +49,20 @@ public class Deque<Item> implements Iterable<Item> {
 
     if (item == null) throw new NullPointerException();
 
-    Node oldNode = head;
-    head = new Node();
-    head.item = item;
-    head.next = oldNode;
-    head.prev = null;
-    if (isEmpty()) {
-       tail = head;
-    } else {
-      oldNode.prev = head;
-    }
+    // Create the new node and assign its pointers
+    // accordingly
+    Node newNode = new Node();
+    newNode.item = item;
+    newNode.next = head.next;
+    newNode.prev = head;
+
+    // Make the head and old node point to the new node
+    // For the first item in the Deque, the tail should be the
+    // next item after head.
+    assert (head.next != null);
+    head.next.prev = newNode;
+    head.next = newNode;
+    newNode = null;
     size++;
   }
 
@@ -55,16 +71,20 @@ public class Deque<Item> implements Iterable<Item> {
 
     if (item == null) throw new NullPointerException();
 
-    Node oldNode = tail;
-    tail = new Node();
-    tail.item = item;
-    tail.prev = oldNode;
-    tail.next = null;
-    if (isEmpty()) {
-      head = tail;
-    } else {
-      oldNode.next = tail;
-    }
+    // Create the new node and assign its pointers
+    // accordingly
+    Node newNode = new Node();
+    newNode.item = item;
+    newNode.next = tail;
+    newNode.prev = tail.prev;
+
+    // Make the tail and old node point to the new node
+    // For the last item in the Deque, the head should be the
+    // prev item before tail.
+    assert (tail.prev != null);
+    tail.prev.next = newNode;
+    tail.prev = newNode;
+    newNode = null;
     size++;
   }
 
@@ -73,10 +93,11 @@ public class Deque<Item> implements Iterable<Item> {
 
     if (isEmpty()) throw new NoSuchElementException();
 
-    Item item = head.item;
-    head = head.next;
+    // Have the second item or tail, point back to head
+    Item item = head.next.item;
+    head.next.next.prev = head;
+    head.next = head.next.next;
     size--;
-    if (head == null) tail = null;
     return item;
   }
 
@@ -85,10 +106,10 @@ public class Deque<Item> implements Iterable<Item> {
 
     if (isEmpty()) throw new NoSuchElementException();
 
-    Item item = tail.item;
-    tail = tail.prev;
+    Item item = tail.prev.item;
+    tail.prev.prev.next = tail;
+    tail.prev = tail.prev.prev;
     size--;
-    if (tail == null) head = null;
     return item;
   }
 
@@ -102,15 +123,17 @@ public class Deque<Item> implements Iterable<Item> {
     private Node current;
 
     public DequeIterator() {
-      current = new Node();
-      current.prev = null;
-      current.next = head;
+      assert (head != null);
+      assert (head.prev == null);
+      current = head;
     }
     public boolean hasNext() {
-      return current.next != null;
+      assert (tail != null);
+      assert (tail.next == null); 
+      return current.next != tail;
     }
     public Item next() {
-      if (this.hasNext()) {
+      if (hasNext()) {
         current = current.next;
         return current.item;
       }
@@ -237,20 +260,20 @@ public class Deque<Item> implements Iterable<Item> {
     for (int j = 100; j < 150; j++) {
       if (j % 2 == 0) {
         d.addFirst(j);
-        assert (d.size() == size++);
+        assert (d.size() == ++size);
       } else {
         d.addLast(j);
-        assert (d.size() == size++);
+        assert (d.size() == ++size);
       }
     }
 
     for (int j = 0; j < 50; j++) {
       if (j % 2 != 0) {
         d.removeFirst();
-        assert (d.size() == size--);
+        assert (d.size() == --size);
       } else {
         d.removeLast();
-        assert (d.size() == size--);
+        assert (d.size() == --size);
       }
     }
     assert(d.size() == 1);
