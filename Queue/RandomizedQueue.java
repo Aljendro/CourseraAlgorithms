@@ -3,47 +3,36 @@ import java.util.NoSuchElementException;
 
 public class RandomizedQueue<Item> implements Iterable<Item> {
 
-  private Node head;
-  private int size;
+  private Item[] queueArray;
+  private int currentCapacity;
+  private int amountItems;
 
   // construct an empty randomized queue
   public RandomizedQueue() {
 
-    head = new Node();
-    head.prev = null;
-    head.next = null;
-    size = 0;
-  }
-
-  private class Node {
-
-    private Item item;
-    private Node next;
-    private Node prev;
+    amountItems = 0;
+    currentCapacity = 2;
+    queueArray = (Item[]) new Object[currentCapacity];
   }
 
   // is the queue empty?
   public boolean isEmpty() {
-    return size == 0;
+    return amountItems == 0;
   }
 
   // return the number of items on the queue
   public int size() {
-    return size;
+    return amountItems;
   }
 
   // add the item
   public void enqueue(Item item) {
     if (item == null) throw new NullPointerException();
 
-    Node oldNode = head.next;
-    head.next = new Node();
-    head.next.item = item;
-    head.next.prev = head;
-    head.next.next = oldNode;
-    if (oldNode != null) oldNode.prev = head.next;
-    oldNode = null;
-    size++;
+    if (amountItems == currentCapacity) {
+      changeCapacityTo(2 * currentCapacity);
+    }
+    queueArray[amountItems++] = item;
   }
 
   // remove and return a random item
@@ -51,22 +40,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     if (isEmpty()) throw new NoSuchElementException();
 
-    int rand = StdRandom.uniform(1, size + 1);
-    Node current = head.next;
+    int rand = StdRandom.uniform(0, amountItems);
 
-    for (int i = 1; i < rand; i++) {
-      current = current.next;
+    Item item = queueArray[rand];
+    queueArray[rand] = queueArray[amountItems - 1];
+    queueArray[amountItems - 1] = null;
+    amountItems--;
+
+    if (amountItems == (currentCapacity / 4)) {
+      changeCapacityTo(currentCapacity / 2);
     }
-
-    Item item = current.item;
-
-    if (current.prev != null) current.prev.next = current.next;
-    if (current.next != null) current.next.prev = current.prev;
-    current.next = null;
-    current.prev = null;
-    current = null;
-    size--;
-
     return item;
   }
 
@@ -75,14 +58,20 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     if (isEmpty()) throw new NoSuchElementException();
 
-    int rand = StdRandom.uniform(1, size + 1);
-    Node current = head.next;
+    int rand = StdRandom.uniform(0, amountItems);
 
-    for (int i = 1; i < rand; i++) {
-      current = current.next;
+    return queueArray[rand];
+  }
+
+  private void changeCapacityTo(int newCapacity) {
+
+    currentCapacity = newCapacity;
+    Item[] temp = (Item[]) new Object[currentCapacity];
+
+    for (int i = 0; i < amountItems; i++) {
+      temp[i] = queueArray[i];
     }
-
-    return current.item;
+    queueArray = temp;
   }
 
   // return an independent iterator over items in random order
@@ -92,18 +81,17 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
   private class RandomizedQueueIterator implements Iterator<Item> {
 
-    private Node current;
+    private int position;
 
     public RandomizedQueueIterator() {
-      current = head;
+      position = 0;
     }
     public boolean hasNext() {
-      return current.next != null;
+      return position < amountItems;
     }
     public Item next() {
       if (this.hasNext()) {
-        current = current.next;
-        return current.item;
+        return queueArray[position++];
       }
       throw new NoSuchElementException();
     }
@@ -208,6 +196,17 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
       assert (false);
     }
     print("Passed");
+
+    print("Check if changeCapacityTo can resize array properly");
+    int mediumNum = 1000000;
+    for (int i = 0; i < mediumNum; i++) {
+      r.enqueue(i);
+    }
+    for (int i = 0; i < mediumNum; i++) {
+      r.dequeue();
+    }
+    print("Passed");
+
 
     print("Operations Successful");
   }
