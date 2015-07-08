@@ -47,7 +47,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     queueArray[amountItems - 1] = null;
     amountItems--;
 
-    if (amountItems == (currentCapacity / 4)) {
+    if (amountItems < (currentCapacity / 4)) {
       changeCapacityTo(currentCapacity / 2);
     }
     return item;
@@ -65,13 +65,17 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
   private void changeCapacityTo(int newCapacity) {
 
-    currentCapacity = newCapacity;
-    Item[] temp = (Item[]) new Object[currentCapacity];
+    assert (amountItems < newCapacity);
+    if (newCapacity > 2) {
 
-    for (int i = 0; i < amountItems; i++) {
-      temp[i] = queueArray[i];
+      currentCapacity = newCapacity;
+      Item[] temp = (Item[]) new Object[currentCapacity];
+
+      for (int i = 0; i < amountItems; i++) {
+        temp[i] = queueArray[i];
+      }
+      queueArray = temp;
     }
-    queueArray = temp;
   }
 
   // return an independent iterator over items in random order
@@ -123,7 +127,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     print("Check if adding item is successful");
     r.enqueue(0);
-    assert (r.isEmpty());
+    assert (!r.isEmpty());
     assert (r.size() == 1);
     print("Passed");
 
@@ -149,13 +153,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     print("Check if adding another item is successful");
     r.enqueue(0);
-    assert (r.isEmpty());
+    assert (!r.isEmpty());
     assert (r.size() == 1);
     print("Passed");
 
     print("Check if adding a second item is successful");
     r.enqueue(1);
-    assert (r.isEmpty());
+    assert (!r.isEmpty());
     assert (r.size() == 2);
     print("Passed");
 
@@ -205,8 +209,28 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     for (int i = 0; i < mediumNum; i++) {
       r.dequeue();
     }
+    for (int i = 0; i < mediumNum; i++) {
+      r.enqueue(i);
+    }
+    assert (!r.isEmpty());
+    assert (r.size() == mediumNum);
+    for (int i = 0; i < mediumNum; i++) {
+      r.dequeue();
+    }
     print("Passed");
 
+    print("Test sequence");
+    assert (r.isEmpty());
+    assert (r.isEmpty());
+    r.enqueue(34);
+    assert (r.dequeue() == 34);
+    assert (r.size() == 0);
+    assert (r.size() == 0);
+    r.enqueue(45);
+    assert (r.dequeue() == 45);
+    assert (r.isEmpty());
+    r.enqueue(28);
+    print("Passed");
 
     print("Operations Successful");
   }
