@@ -129,7 +129,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
     public boolean hasNext() {
       assert (tail != null);
-      assert (tail.next == null); 
+      assert (tail.next == null);
       return current.next != tail;
     }
     public Item next() {
@@ -235,7 +235,7 @@ public class Deque<Item> implements Iterable<Item> {
 
     print("Check if removing all items passes");
     for (int j = 0; j < 10; j++) {
-      assert(d.size() == 10 - j);
+      assert (d.size() == 10 - j);
       d.removeFirst();
     }
     print("Passed");
@@ -276,7 +276,7 @@ public class Deque<Item> implements Iterable<Item> {
         assert (d.size() == --size);
       }
     }
-    assert(d.size() == 1);
+    assert (d.size() == 1);
     print("Passed");
 
 
