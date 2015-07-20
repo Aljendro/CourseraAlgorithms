@@ -16,3 +16,6 @@ Percolation/InteractivePercolationVisualizer*
 
 # Ignore JVM generated files
 *.class
+
+# Ignore text files
+*.txt
